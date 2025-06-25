@@ -5,10 +5,14 @@ import { motion } from 'framer-motion';
 import { Checkbox, Radio } from 'antd';
 import toast from 'react-hot-toast';
 import { Prices } from '../components/Prices';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../Context/Cart';
 
 
 function Home() {
 
+    const navigate = useNavigate();
+    const [cart, setCart] = useCart();
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [checked, setChecked] = useState([]);
@@ -159,8 +163,8 @@ function Home() {
                                                     <h5 className="card-title fw-bold">{p.name}</h5>
                                                     <p className="card-text text-muted" style={{ fontSize: '0.9rem' }}>{p.description.length > 30 ? p.description.slice(0, 30) + "..." : p.description}</p>
                                                     <p className="card-text text-muted" style={{ fontSize: '0.9rem' }}>${p.price}</p>
-                                                    <button className='btn btn-primary text-center me-4' >More Details</button>
-                                                    <button className='btn btn-secondary text-center' >Add To Cart</button>
+                                                    <button className='btn btn-primary text-center me-4' onClick={() => navigate(`/product/${p.slug}`)} >More Details</button>
+                                                    <button className='btn btn-secondary text-center' onClick={() => { setCart([...cart, p]), localStorage.setItem('cart', JSON.stringify([...cart, p])), toast.success("Item Added To Cart") }} >Add To Cart</button>
                                                 </div>
                                             </div>
                                         </motion.div>

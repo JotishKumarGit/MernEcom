@@ -1,5 +1,8 @@
-import express from 'express';
+
 import dotenv from 'dotenv';
+// configure env
+dotenv.config();
+import express from 'express';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
 import authRoute from './routes/authRoute.js';
@@ -9,9 +12,6 @@ import cors from 'cors';
 
 // rest object
 const app = express();
-
-// configure env
-dotenv.config();
 
 // Database config
 connectDB();
@@ -38,5 +38,4 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server is running on mode ${process.env.DEV_MODE} port ${PORT}`);
 })
-
 

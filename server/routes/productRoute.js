@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAdmin, requireSignIn } from '../middleware/authMiddleware.js';
-import { createController, deleteProductController, getProductController, getSingleProductController, productCountController, productFilterController, productListController, productPhotoController, searchProductController, updateProductController } from '../controllers/productController.js';
+import { braintreePaymentController, braintreeTokenController, createController, deleteProductController, getProductController, getSingleProductController, productCategoryController, productCountController, productFilterController, productListController, productPhotoController, relativeProductController, searchProductController, updateProductController } from '../controllers/productController.js';
 import formidable from 'express-formidable';
 
 const router = express.Router();
@@ -29,11 +29,22 @@ router.get('/product-count', productCountController);
 router.get(`/product-list/:page`, productListController);
 
 // search product
-router.get('/search', searchProductController);
+router.get('/search/:keyword', searchProductController);
+
+// Similar product product details
+
+router.get('/relative-product/:pid/:cid', relativeProductController);
+
+// Category wise product
+router.get('/product-category/:slug', productCategoryController);
 
 
+// payments routes 
+// token from brain tree for account verify 
+router.get('/braintree/token', braintreeTokenController ) ;
 
-
+// payments kaise hoga 
+router.post('/braintree/payment', requireSignIn, braintreePaymentController);
 
 export default router;
 

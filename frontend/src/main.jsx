@@ -5,14 +5,20 @@ import App from './App.jsx';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './Context/Auth.jsx';
 import { SearchProvider } from './Context/Search.jsx';
+import { CartProvider } from './Context/Cart.jsx';
+<script src="https://js.braintreegateway.com/web/dropin/1.33.4/js/dropin.min.js"></script>
+
 
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <AuthProvider>
-      <SearchProvider>
-        <App />
-      </SearchProvider>
-    </AuthProvider>
-  </BrowserRouter>,
+
+  <AuthProvider>
+    <SearchProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CartProvider>
+    </SearchProvider>
+  </AuthProvider>,
 )
 

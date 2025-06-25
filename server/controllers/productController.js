@@ -1,6 +1,20 @@
 import slugify from 'slugify';
 import productModel from '../models/productModel.js';
 import fs from 'fs';
+import categoryModel from '../models/categoryModel.js';
+import braintree from 'braintree';
+import orderModel from '../models/orderModel.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
+// payment gateway 
+const gateway = new braintree.BraintreeGateway({
+    environment: braintree.Environment.Sandbox,
+    merchantId: process.env.BRAINTREE_MERCHANT_ID,
+    publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+    privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+});
+
 
 export const createController = async (req, res) => {
     try {
@@ -180,3 +194,82 @@ export const searchProductController = async (req, res) => {
 }
 
 
+// relative product controller 
+export const relativeProductController = async (req, res) => {
+    try {
+        const { pid, cid } = req.params;
+        const products = await productModel.find({
+            category: cid,
+            _id: { $ne: pid }
+        }).select('-photo').limit(3).populate("category");
+        res.status(200).send({ success: true, products })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ success: false, message: 'Internal server error', error })
+    }
+}
+
+// get product by category
+
+export const productCategoryController = async (req, res) => {
+    try {
+        const category = await categoryModel.findOne({ slug: req.params.slug });
+        const products = await productModel.find({ category }).populate('category');
+        res.status(200).send({ success: true, category, products });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ success: false, message: 'Internal server error', error });
+    }
+}
+
+
+// payment gateway api 
+// token
+export const braintreeTokenController = async (req, res) => {
+    try {
+        gateway.clientToken.generate({}, function (err, response) {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.send(response);
+            }
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// payments 
+
+export const braintreePaymentController = async (req, res) => {
+  try {
+    const { nonce, cart } = req.body;
+    let total = 0;
+    cart.map((i) => {
+      total += i.price;
+    });
+    let newTransaction = gateway.transaction.sale(
+      {
+        amount: total,
+        paymentMethodNonce: nonce,
+        options: {
+          submitForSettlement: true,
+        },
+      },
+      function (error, result) {
+        if (result) {
+          const order = new orderModel({
+            products: cart,
+            payment: result,
+            buyer: req.user._id,
+          }).save();
+          res.json({ ok: true });
+        } else {
+          res.status(500).send(error);
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
