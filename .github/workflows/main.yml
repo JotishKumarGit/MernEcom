@@ -1,0 +1,35 @@
+name: Node or React CI
+
+# Trigger this workflow on push or pull request to any branch
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js (change version if needed)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run tests (if you have any)
+      - name: Run tests
+        run: npm test
+
+      # Step 5: Build the project (for React or Node build step)
+      - name: Build the project
+        run: npm run build
